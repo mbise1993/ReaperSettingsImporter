@@ -40,7 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\Attribute.cs" />
     <Compile Include="Model\Element.cs" />
+    <Compile Include="Model\Element2.cs" />
     <Compile Include="Model\Project.cs" />
     <Compile Include="Model\TrackParams.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

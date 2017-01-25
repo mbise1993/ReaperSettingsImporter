@@ -1,67 +1,63 @@
-﻿using mbise1993.ReaperProjectUtil.Model;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ReaperSettingsImporterCLI
+namespace mbise1993.ReaperSettingsImporterCLI
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Project sourceProject = new Project(args[1]);
+            Console.WriteLine("[args] {0}", args.Length);
+            ReaperProject sourceProject = ReaperProject.Load(args[0]);
+            Console.WriteLine("[LOAD] Loaded source project {0}", sourceProject.FilePath);
 
-            IList<Project> destProjects = new List<Project>();
-            foreach(string destProjectPath in args.Skip(2).ToArray())
+            if(!args[1].Equals("-d", StringComparison.InvariantCultureIgnoreCase))
             {
-                destProjects.Add(new Project(destProjectPath));
+                Console.WriteLine("[ERROR] No destination projects listed. USAGE: <sourceProject> -d <destProject destProject ...>");
+                return;
             }
 
-            IList<TrackInfo> trackInfos = new List<TrackInfo>();
-            foreach(Element track in sourceProject.GetTracks())
-            {
-                string name = sourceProject.GetTrackParam(track, TrackParams.NAME);
-                string volPan = sourceProject.GetTrackParam(track, TrackParams.VOLPAN);
-                string muteSolo = sourceProject.GetTrackParam(track, TrackParams.MUTESOLO);
-                Element fxChain = sourceProject.GetTrackFxChain(track);
+            IList<ReaperProject> destProjects = new List<ReaperProject>();
+            IList<string> trackNames = new List<string>();
+            IList<TrackData> sourceTrackData = new List<TrackData>();
 
-                trackInfos.Add(new TrackInfo(name, volPan, muteSolo, fxChain));
+            int i = 2;
+            while(i < args.Length && !args[i].Equals("-t", StringComparison.InvariantCultureIgnoreCase))
+            {
+                destProjects.Add(ReaperProject.Load(args[i]));
+                Console.WriteLine("[LOAD] Loaded destination project {0}", args[i]);
+                i++;
             }
 
-            foreach(Project destProject in destProjects)
+            if(i < args.Length && args[i].Equals("-t", StringComparison.InvariantCultureIgnoreCase))
             {
-                foreach (TrackInfo trackInfo in trackInfos)
+                i++;
+                while(i < args.Length)
                 {
-                    Element destTrack = destProject.GetTracks(trackInfo.Name)[0];
-
-                    string volPanValue = destProject.GetTrackParam(destTrack, TrackParams.VOLPAN);
-                    destProject.SetTrackParam(destTrack, TrackParams.VOLPAN, volPanValue);
-
-                    string muteSoloValue = destProject.GetTrackParam(destTrack, TrackParams.MUTESOLO);
-                    destProject.SetTrackParam(destTrack, TrackParams.MUTESOLO, muteSoloValue);
-
-                    destProject.UpdateTrackFxChain(trackInfo.Name, trackInfo.FxChain);
+                    trackNames.Add($"\"{args[i]}\"");
+                    trackNames.Add(args[i]);
+                    i++;
                 }
-
-                destProject.Save();
             }
-        }
 
-        public struct TrackInfo
-        {
-            public string Name;
-            public string VolPan;
-            public string MuteSolo;
-            public Element FxChain;
-
-            public TrackInfo(string name, string volPan, string muteSolo, Element fxChain)
+            if(trackNames.Count > 0)
             {
-                Name = name;
-                VolPan = volPan;
-                MuteSolo = muteSolo;
-                FxChain = fxChain;
+                sourceTrackData = sourceProject.ReadTrackData(trackNames);
+            }
+            else
+            {
+                sourceTrackData = sourceProject.ReadTrackData();
+            }
+            Console.WriteLine("[STATUS] Read source track data: {0} tracks found", sourceTrackData.Count);
+            
+
+            foreach(ReaperProject destProject in destProjects)
+            {
+                destProject.WriteTrackData(sourceTrackData);
+                Console.WriteLine("[STATUS] Finished writing settings to {0}", destProject.FilePath);
             }
         }
     }

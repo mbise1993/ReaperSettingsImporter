@@ -18,7 +18,7 @@ namespace mbise1993.ReaperProjectUtil.Model
 
         #region Properties
 
-        public Element ProjectRoot
+        public Element2 ProjectRoot
         {
             get; private set;
         }
@@ -31,16 +31,16 @@ namespace mbise1993.ReaperProjectUtil.Model
         {
             _filePath = filePath;
             _fileText = File.ReadAllText(_filePath);
-            ProjectRoot = new Element(_fileText);
+            ProjectRoot = new Element2(_fileText);
         }
 
         #endregion
 
         #region Public Methods
 
-        public IList<Element> GetTracks(string trackName = null)
+        public IList<Element2> GetTracks(string trackName = null)
         {
-            IList<Element> tracks = ProjectRoot.Elements.Where(e => e.Tag == "TRACK").ToList();
+            IList<Element2> tracks = ProjectRoot.Elements.Where(e => e.Tag == "TRACK").ToList();
             if (!string.IsNullOrEmpty(trackName))
             {
                 return tracks.Where(t => GetTrackParam(t, TrackParams.NAME) == trackName).ToList();
@@ -51,7 +51,7 @@ namespace mbise1993.ReaperProjectUtil.Model
             }
         }
 
-        public string GetTrackParam(Element track, TrackParams trackParam)
+        public string GetTrackParam(Element2 track, TrackParams trackParam)
         {
             if(track.Tag != "TRACK")
             {
@@ -61,7 +61,7 @@ namespace mbise1993.ReaperProjectUtil.Model
             return track.Fields[Enum.GetName(typeof(TrackParams), trackParam)];
         }
 
-        public void SetTrackParam(Element track, TrackParams trackParam, string value)
+        public void SetTrackParam(Element2 track, TrackParams trackParam, string value)
         {
             if (track.Tag != "TRACK")
             {
@@ -71,7 +71,7 @@ namespace mbise1993.ReaperProjectUtil.Model
             track.Fields[Enum.GetName(typeof(TrackParams), trackParam)] = value;
         }
 
-        public Element GetTrackFxChain(Element track)
+        public Element2 GetTrackFxChain(Element2 track)
         {
             if(!track.Elements.Any(e => e.Tag == "FXCHAIN"))
             {
@@ -81,16 +81,16 @@ namespace mbise1993.ReaperProjectUtil.Model
             return track.Elements.Single(e => e.Tag == "FXCHAIN");
         }
 
-        public void UpdateTrackFxChain(string trackName, Element fxChain)
+        public void UpdateTrackFxChain(string trackName, Element2 fxChain)
         {
-            IList<Element> tracks = GetTracks(trackName);
+            IList<Element2> tracks = GetTracks(trackName);
             if(tracks.Count == 0)
             {
                 throw new ArgumentException("No tracks found with name '" + trackName + "'");
             }
 
-            Element track = tracks[0];
-            Element oldFxChain = GetTrackFxChain(track);
+            Element2 track = tracks[0];
+            Element2 oldFxChain = GetTrackFxChain(track);
             int index = track.Elements.IndexOf(oldFxChain);
             track.Elements.RemoveAt(index);
             track.Elements.Insert(index, fxChain);

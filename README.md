@@ -1,8 +1,7 @@
 # ReaperSettingsImporter
 Automated import of REAPER project settings (track pan, volume, and FX) from a source project to n destination projects.
 
-As of now, this is just a simple command line application written in C# (but I plan to add a GUI and do a complete overhaul of the code 
-eventually). Its primary use is copying track settings (FX chain, volume, pan, and mute/solo) from one source project to multiple destination projects,
+As of now, this is just a simple command line application written in C# using Visual Studio 2015 and .NET 4.6 (but I plan to add a GUI and do a complete overhaul of the code eventually). Its primary use is copying track settings (FX chain, volume, pan, and mute/solo) from one source project to multiple destination projects,
 such as from an album template project to all the projects for individual tracks on the album. The tracks in the source and destination
 projects must be named EXACTLY the same (it is case sensitive) and there should be no duplicate track names. 
 You can provide a list of track names for the tracks you would like to import or you can import all the tracks by simply not providing 
